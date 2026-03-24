@@ -22,7 +22,7 @@
         .value { font-weight: bold; color: #333; font-size: 1em; }
         .copy-btn { color: #2196F3; border: 1px solid #90caf9; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8em; text-transform: uppercase; font-weight: 500; background: white; }
 
-        /* UPI Grid - Horizontal Box Style */
+        /* UPI Grid - Fixed Alignment and Logos */
         .upi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .upi-item { 
             border: 1px solid #e0e0e0; 
@@ -30,12 +30,12 @@
             padding: 12px; 
             display: flex; 
             align-items: center; 
-            justify-content: flex-start; /* Logo on the left */
+            justify-content: flex-start; 
             background: #fff; 
             text-decoration: none;
             transition: 0.2s;
         }
-        .upi-item img { height: 22px; width: auto; margin-right: 10px; object-fit: contain; }
+        .upi-item img { height: 22px; width: auto; margin-right: 12px; object-fit: contain; }
         .upi-item span { font-size: 1em; font-weight: 600; color: #444; }
         .upi-item:active { border-color: #2196F3; background-color: #f0f7ff; }
 
@@ -52,7 +52,7 @@
 
         /* Footer Icons */
         .footer { display: flex; justify-content: center; align-items: center; gap: 15px; padding: 10px 0; margin-top: 10px; }
-        .footer img { height: 20px; opacity: 0.8; }
+        .footer img { height: 18px; opacity: 0.9; }
 
         /* Popups */
         #status-popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: white; padding: 25px; border-radius: 12px; text-align: center; z-index: 2000; width: 120px; }
@@ -61,6 +61,7 @@
 </head>
 <body onload="startTimer()">
 
+<!-- Status Animation -->
 <div id="status-popup"><div style="font-size:40px; margin-bottom:10px;">✓</div><div>Submitted</div></div>
 <div id="success-page">
     <div class="header">Payment</div>
@@ -89,30 +90,27 @@
         <div class="row">
             <span class="label">VPA/UPI ID</span>
             <div class="value-container">
-                <span class="value">asmaakter456003-2@okaxis</span>
+                <span class="value" id="upi_id">asmaakter456003-2@okaxis</span>
                 <div class="copy-btn" onclick="copyToClipboard('asmaakter456003-2@okaxis')">COPY</div>
             </div>
         </div>
 
         <a href="#" style="color: #2196F3; text-decoration: none; font-size: 1.05em; display: flex; align-items: center; margin: 15px 0;">❔ How to transfer money 🔗</a>
 
+        <!-- Fixed UPI App Icons -->
         <div class="upi-grid">
-            <!-- PhonePe -->
             <a href="upi://pay?pa=asmaakter456003-2@okaxis&am=3500" class="upi-item">
                 <img src="https://img.icons8.com" alt="PhonePe">
                 <span>PhonePe</span>
             </a>
-            <!-- Paytm (Updated with your exact logo) -->
             <a href="upi://pay?pa=asmaakter456003-2@okaxis&am=3500" class="upi-item">
                 <img src="https://upload.wikimedia.org" alt="Paytm">
                 <span>Paytm</span>
             </a>
-            <!-- G Pay -->
             <a href="upi://pay?pa=asmaakter456003-2@okaxis&am=3500" class="upi-item">
-                <img src="https://img.icons8.com" alt="GPay">
+                <img src="https://img.icons8.com" alt="G Pay">
                 <span>G Pay</span>
             </a>
-            <!-- BHIM -->
             <a href="upi://pay?pa=asmaakter456003-2@okaxis&am=3500" class="upi-item">
                 <img src="https://upload.wikimedia.org" alt="BHIM">
                 <span>BHIM</span>
@@ -130,11 +128,12 @@
         <div class="notice-item">1. One UPI can only transfer money <span class="red-text">once.</span></div>
         <div class="notice-item">2. Don't change the <span class="red-text">payment amount</span> Otherwise, the order cannot be closed.</div>
 
+        <!-- Footer Logos Fixed -->
         <div class="footer">
-            <img src="https://img.icons8.com">
-            <img src="https://upload.wikimedia.org">
-            <img src="https://upload.wikimedia.org">
-            <span style="font-weight:bold; color:#777; font-size:1.1em; margin-left: -5px;">UPI</span>
+            <img src="https://img.icons8.com" alt="PhonePe">
+            <img src="https://upload.wikimedia.org" alt="Paytm">
+            <img src="https://upload.wikimedia.org" alt="BHIM">
+            <span style="font-weight:bold; color:#777; font-size:1.2em; margin-left: -5px;">UPI</span>
         </div>
     </div>
 </div>
@@ -143,7 +142,12 @@
     function startTimer() {
         let totalSeconds = 600; 
         const timer = setInterval(() => {
-            if (totalSeconds <= 0) { clearInterval(timer); return; }
+            if (totalSeconds <= 0) {
+                clearInterval(timer);
+                document.getElementById('min').innerText = "00";
+                document.getElementById('sec').innerText = "00";
+                return;
+            }
             totalSeconds--;
             let m = Math.floor(totalSeconds / 60);
             let s = totalSeconds % 60;
@@ -153,12 +157,15 @@
     }
 
     function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => alert("Copied!"));
+        navigator.clipboard.writeText(text).then(() => alert("Copied: " + text));
     }
 
     function handleSubmit() {
         const val = document.getElementById('utr_input').value;
-        if (!/^\d{12}$/.test(val)) { alert("Please enter the 12-digit UTR number correctly."); return; }
+        if (!/^\d{12}$/.test(val)) { 
+            alert("Error: Please enter the 12-digit UTR number correctly."); 
+            return; 
+        }
         document.getElementById('status-popup').style.display = 'block';
         setTimeout(() => {
             document.getElementById('status-popup').style.display = 'none';
