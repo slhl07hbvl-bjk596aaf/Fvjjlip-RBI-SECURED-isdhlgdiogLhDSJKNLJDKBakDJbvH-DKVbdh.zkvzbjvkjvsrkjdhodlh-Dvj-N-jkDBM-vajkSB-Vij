@@ -6,58 +6,40 @@
     <style>
         body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; padding: 10px; margin: 0; }
         .payment-card { background: white; width: 100%; max-width: 400px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eee; }
-        
         .header { background: #2196F3; color: white; text-align: center; padding: 15px; font-weight: bold; font-size: 1.3em; }
         .content { padding: 15px; }
-
-        /* Timer Section - Fixed 00:00 format */
         .timer-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: bold; color: #333; }
         .timer-box { display: flex; gap: 5px; align-items: center;}
         .digit { background: #2196F3; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.9em; min-width: 22px; text-align: center; }
-
-        /* Detail Rows - Values aligned to right */
         .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border: 1px solid #90caf9; padding: 10px; border-radius: 6px; }
         .label { color: #555; font-size: 0.95em; flex: 1; }
         .value-container { display: flex; align-items: center; gap: 10px; flex: 2; justify-content: flex-end; }
         .value { font-weight: bold; color: #333; font-size: 1em; }
-        .copy-btn { color: #2196F3; border: 1px solid #90caf9; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8em; text-transform: uppercase; font-weight: 500; background: white; }
-
-        /* Help Link and Instruction Text */
+        .copy-btn { color: #2196F3; border: 1px solid #90caf9; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8em; text-transform: uppercase; font-weight: 500; background: white; transition: 0.2s; }
+        .copy-btn:active { background: #e3f2fd; }
         .help-link { color: #2196F3; text-decoration: none; font-size: 1.05em; display: flex; align-items: center; margin: 15px 0; }
         .instruction-text { color: #2196F3; font-size: 1.05em; margin: 15px 0 10px 0; display: block; }
-        
-        /* UPI Grid - Left Aligned Logos */
         .upi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .upi-item { border: 1px solid #ccc; border-radius: 8px; padding: 12px; display: flex; align-items: center; justify-content: flex-start; background: #fff; text-decoration: none; }
         .upi-item img { height: 24px; width: auto; margin-right: 12px; object-fit: contain; }
         .upi-item span { font-size: 1.1em; font-weight: 500; color: #444; }
-
-        /* UTR Section */
         .utr-row { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         .utr-label { width: 50px; font-weight: bold; color: #333; font-size: 0.9em;}
         .input-field { flex: 1; padding: 10px; border: none; outline: none; font-size: 1em; color: #333; }
-        .input-field::placeholder { color: #ccc; }
         .submit-btn { width: 100%; background: #2196F3; color: white; border: none; padding: 15px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 1.1em; margin: 10px 0 20px; box-shadow: 0 4px 6px rgba(33, 150, 243, 0.2); }
-
-        /* Notice Section */
         .notice-title { color: #d32f2f; font-weight: bold; font-size: 1.1em; margin-bottom: 8px; }
         .notice-item { color: #333; font-size: 0.95em; line-height: 1.5; margin-bottom: 5px; }
         .red-text { color: #d32f2f; font-weight: 600; }
-
-        /* Footer Icons */
         .footer { display: flex; justify-content: center; align-items: center; gap: 15px; padding: 20px 0; margin-top: 10px; }
-        .footer img { height: 22px; opacity: 0.9; }
-
-        /* Popups and Success Screen */
         #status-popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: white; padding: 25px; border-radius: 12px; text-align: center; z-index: 2000; width: 120px; }
         #success-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 3000; text-align: center; }
         .success-header { background: #2196F3; color: white; padding: 15px; font-weight: bold; font-size: 1.3em; margin-bottom: 60px; }
     </style>
 </head>
-<body onload="startTimer()">
+<body onload="initApp()">
 
-<!-- Success Animation Elements -->
 <div id="status-popup"><div style="font-size:40px; margin-bottom:10px;">✓</div><div>Submitted</div></div>
+
 <div id="success-page">
     <div class="success-header">Payment</div>
     <div style="color:#4CAF50; font-size:80px; margin: 80px 0 20px;">✔</div>
@@ -67,7 +49,6 @@
 <div class="payment-card" id="main-card">
     <div class="header">Payment</div>
     <div class="content">
-        <!-- 10:00 Timer -->
         <div class="timer-row">
             <span>Order will be closed in:</span>
             <div class="timer-box">
@@ -75,96 +56,97 @@
             </div>
         </div>
 
-        <!-- Detail Rows -->
         <div class="row">
             <span class="label">Amount</span>
             <div class="value-container">
-                <span class="value">₹ 3500</span>
-                <div class="copy-btn" onclick="copyToClipboard('3500')">COPY</div>
+                <span class="value" id="display_amount">₹ 0</span>
+                <div class="copy-btn" onclick="copyAmount()">COPY</div>
             </div>
         </div>
         <div class="row">
             <span class="label">VPA/UPI ID</span>
             <div class="value-container">
-                <span class="value" id="upi_id">asmaakter456003-2@okaxis</span>
-                <div class="copy-btn" onclick="copyToClipboard('asmaakter456003-2@okaxis')">COPY</div>
+                <span class="value" id="display_upi">loading...</span>
+                <div class="copy-btn" onclick="copyUPI()">COPY</div>
             </div>
         </div>
 
         <a href="#" class="help-link">❔ How to transfer money 🔗</a>
 
         <div class="upi-grid">
-            <a href="upi://pay?pa=asmaakter456003-2@okaxis&am=3500" class="upi-item">
-                <img src="https://img.icons8.com"><span>PhonePe</span>
-            </a>
-            <a href="upi://pay?pa=asmaakter456003-2@okaxis&am=3500" class="upi-item">
-                <img src="https://upload.wikimedia.org"><span>Paytm</span>
-            </a>
-            <a href="upi://pay?pa=asmaakter456003-2@okaxis&am=3500" class="upi-item">
-                <img src="https://img.icons8.com"><span>G Pay</span>
-            </a>
-            <a href="upi://pay?pa=asmaakter456003-2@okaxis&am=3500" class="upi-item">
-                <img src="https://upload.wikimedia.org"><span>BHIM</span>
-            </a>
+            <a href="#" class="upi-item upi-link"><span>PhonePe</span></a>
+            <a href="#" class="upi-item upi-link"><span>Paytm</span></a>
+            <a href="#" class="upi-item upi-link"><span>G Pay</span></a>
+            <a href="#" class="upi-item upi-link"><span>BHIM</span></a>
         </div>
 
         <span class="instruction-text">↓ Fill the UTR numbers after you done payment</span>
         <div class="utr-row">
-            <span class="utr-label" style="font-weight: bold; color: #333;">UTR</span>
-            <input type="text" id="utr_input" class="input-field" placeholder="Input UTR number" maxlength="12" inputmode="numeric">
+            <span class="utr-label">UTR</span>
+            <input type="text" id="utr_input" class="input-field" placeholder="Input 12-digit UTR" maxlength="12" inputmode="numeric">
         </div>
         <button class="submit-btn" onclick="handleSubmit()">Submit UTR</button>
 
-        <!-- Notice with Highlights -->
         <div class="notice-title">Notice:</div>
         <div class="notice-item">1. <span class="red-text">One UPI</span> can only transfer money <span class="red-text">once.</span></div>
-        <div class="notice-item">2. Don't change the <span class="red-text">payment amount</span> Otherwise, the order cannot be closed.</div>
-
-        <!-- Footer Logos -->
-        <div class="footer">
-            <img src="https://img.icons8.com">
-            <img src="https://upload.wikimedia.org">
-            <img src="https://upload.wikimedia.org">
-            <span style="font-weight:bold; color:#777; font-size:1.2em; margin-left: -5px;">UPI</span>
-        </div>
+        <div class="notice-item">2. Don't change the <span class="red-text">payment amount</span> otherwise, the order cannot be closed.</div>
     </div>
 </div>
 
 <script>
-    // Timer Logic for 10:00 -> 00:00
+    // --- EDIT THESE TWO VALUES ONLY ---
+    const PAYMENT_CONFIG = {
+        amount: "3500",
+        upiId: "asmaakter456003-2@okaxis"
+    };
+
+    function initApp() {
+        // Update display text
+        document.getElementById('display_amount').innerText = "₹ " + PAYMENT_CONFIG.amount;
+        document.getElementById('display_upi').innerText = PAYMENT_CONFIG.upiId;
+
+        // Update all UPI deep links
+        const upiUrl = `upi://pay?pa=${PAYMENT_CONFIG.upiId}&am=${PAYMENT_CONFIG.amount}&cu=INR`;
+        document.querySelectorAll('.upi-link').forEach(link => {
+            link.href = upiUrl;
+        });
+
+        startTimer();
+    }
+
     function startTimer() {
         let totalSeconds = 600; 
         const timer = setInterval(() => {
             if (totalSeconds <= 0) {
                 clearInterval(timer);
-                document.getElementById('min').innerText = "00";
-                document.getElementById('sec').innerText = "00";
                 return;
             }
             totalSeconds--;
             let m = Math.floor(totalSeconds / 60);
             let s = totalSeconds % 60;
-            document.getElementById('min').innerText = m < 10 ? '0' + m : m;
-            document.getElementById('sec').innerText = s < 10 ? '0' + s : s;
+            document.getElementById('min').innerText = String(m).padStart(2, '0');
+            document.getElementById('sec').innerText = String(s).padStart(2, '0');
         }, 1000);
     }
 
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => alert("Copied: " + text));
+    function copyAmount() {
+        navigator.clipboard.writeText(PAYMENT_CONFIG.amount);
+        alert("Amount Copied: " + PAYMENT_CONFIG.amount);
+    }
+
+    function copyUPI() {
+        navigator.clipboard.writeText(PAYMENT_CONFIG.upiId);
+        alert("UPI ID Copied: " + PAYMENT_CONFIG.upiId);
     }
 
     function handleSubmit() {
         const val = document.getElementById('utr_input').value.trim();
-        // Validation for exactly 12 digits
         if (!/^\d{12}$/.test(val)) { 
             alert("Error: Please enter the 12-digit UTR number correctly."); 
             return; 
         }
         
-        // Show status popup
         document.getElementById('status-popup').style.display = 'block';
-        
-        // Transition to success screen
         setTimeout(() => {
             document.getElementById('status-popup').style.display = 'none';
             document.getElementById('main-card').style.display = 'none';
